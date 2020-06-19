@@ -6,6 +6,7 @@ UIParent.DECORATIVE_NAME = "UIParent"
 
 --- AddOn Declaration
 local ADDON_NAME = "ZxStartingGold"
+---@class ZxStartingGold
 local ZxStartingGold = LibStub("AceAddon-3.0"):NewAddon(ADDON_NAME, "AceConsole-3.0")
 
 --- All this below is needed!
@@ -64,4 +65,25 @@ end
 function ZxStartingGold:registerModuleOptions(name, optTable, displayName)
   self.moduleOptionsTable[name] = optTable
   table.insert(self.moduleKeySorted, name)
+end
+
+---@param module string
+function ZxStartingGold:getModuleEnabledState(module)
+  ---return statement
+  return self.db.profile["modules"][module]["enabled"]
+end
+
+---@param moduleName string
+---@param isEnabled boolean
+function ZxStartingGold:setModuleEnabledState(moduleName, isEnabled)
+  local oldEnabledValue = self.db.profile["modules"][moduleName]["enabled"]
+  self.db.profile["modules"][moduleName]["enabled"] = isEnabled
+
+  if oldEnabledValue ~= isEnabled then
+    if isEnabled then
+      self:EnableModule(moduleName)
+    else
+      self:DisableModule(moduleName)
+    end
+  end
 end

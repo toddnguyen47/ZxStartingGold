@@ -2,6 +2,8 @@
 local LibStub, CreateFrame = LibStub, CreateFrame
 
 local ZxStartingGold = LibStub("AceAddon-3.0"):GetAddon("ZxStartingGold")
+
+---@class FramePool47
 local FramePool47 = {}
 FramePool47.__index = FramePool47
 ZxStartingGold.FramePool47 = FramePool47

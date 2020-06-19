@@ -2,7 +2,7 @@
 ## Title: Zx Starting Gold
 ## Author: ZxScepter
 ## Notes: Display starting gold.
-## Version: 0.1
+## Version: 1.0
 ## SavedVariables: ZxStartingGold_DB
 
 embeds.xml
