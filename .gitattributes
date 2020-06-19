@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+# Text files
+*.xml text
+*.lua text
+*.toc text
+
+# Binary files
+*.ttf binary
+*.otf binary
+
+
