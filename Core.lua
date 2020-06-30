@@ -4,6 +4,10 @@ local LibStub, ChatFrame1 = LibStub, ChatFrame1
 local UIParent = UIParent
 UIParent.DECORATIVE_NAME = "UIParent"
 
+local media = LibStub("LibSharedMedia-3.0")
+media:Register("font", "PT Mono",
+  "Interface\\AddOns\\ZxStartingGold\\media\\fonts\\PT_Mono\\PTMono-Regular.ttf")
+
 --- AddOn Declaration
 local ADDON_NAME = "ZxStartingGold"
 ---@class ZxStartingGold

@@ -29,7 +29,7 @@ end
 ---do init tasks here, like loading the Saved Variables,
 ---or setting up slash commands.
 function GoldOptions:OnInitialize()
-  self._defaults = {profile = {font = "PT Sans", fontsize = 14}}
+  self._defaults = {profile = {font = "PT Mono", fontsize = 24}}
 
   self.db = ZxStartingGold.db:RegisterNamespace(MODULE_NAME, self._defaults)
   self._curDbProfile = self.db.profile
@@ -57,9 +57,7 @@ end
 
 function GoldOptions:refreshConfig()
   if self._goldFrame ~= nil then
-    print(self._curDbProfile.font)
-    print(self._curDbProfile.fontsize)
-    self._goldFrame.goldFontString:SetFont(self._curDbProfile.font,
+    self._goldFrame.goldText:SetFont(media:Fetch("font", self._curDbProfile.font),
       self._curDbProfile.fontsize, "OUTLINE")
   end
 end
@@ -99,6 +97,7 @@ function GoldOptions:getOptionTable()
               self:_getMoneyString(curMoney), "", "DIFFERENCE",
               self:_getMoneyString(curMoney - self._initCopperAmount)
             }
+
             local str2 = ""
             for _, str1 in ipairs(strList) do str2 = str2 .. str1 .. "\n" end
             self.options.args.moneyDescription.name = str2
@@ -155,20 +154,18 @@ end
 ---@param strToDisplay string
 function GoldOptions:_openGoldFrame(strToDisplay)
   if self._goldFrame == nil then
-    self._goldFrame = AceGUI:Create("Frame")
-    self._goldFrame:SetCallback("OnClose", function(widget)
-      AceGUI:Release(widget)
-      self._goldFrame = nil
-    end)
-    self._goldFrame:SetTitle("Gold Difference")
-    self._goldFrame:SetLayout("Flow")
+    self._aceguiFrame = AceGUI:Create("Frame")
+    self._aceguiFrame:SetTitle("Gold Difference")
+    self._aceguiFrame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
 
-    self._goldFrame.goldFontString = AceGUI:Create("Label")
-    self._goldFrame.goldFontString:SetWidth(200)
-    self._goldFrame.goldFontString:SetFont(self._curDbProfile.font,
+    self._goldFrame = self._aceguiFrame.frame
+
+    self._goldFrame.goldText = self._goldFrame:CreateFontString(nil, "OVERLAY")
+    self._goldFrame.goldText:SetPoint("TOPLEFT", self._goldFrame, "TOPLEFT", 20, -20)
+    self._goldFrame.goldText:SetFont(media:Fetch("font", self._curDbProfile.font),
       self._curDbProfile.fontsize, "OUTLINE")
-    self._goldFrame:AddChild(self._goldFrame.goldFontString)
   end
 
-  self._goldFrame.goldFontString:SetText(strToDisplay)
+  self._goldFrame.goldText:SetText(strToDisplay)
+  if not self._goldFrame:IsVisible() then self._goldFrame:Show() end
 end
