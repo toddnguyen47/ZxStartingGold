@@ -1,10 +1,14 @@
 -- Upvalues
 local GetMoney, LibStub = GetMoney, LibStub
+local AceGUI = LibStub("AceGUI-3.0")
+local media = LibStub("LibSharedMedia-3.0")
 
 ---@type ZxStartingGold
 local ZxStartingGold = LibStub("AceAddon-3.0"):GetAddon("ZxStartingGold")
 ---@type FramePool47
 local FramePool47 = ZxStartingGold.FramePool47
+---@type CoreOptions47
+local CoreOptions47 = ZxStartingGold.optionTables["CoreOptions47"]
 
 local MODULE_NAME = "GoldOptions"
 local DECORATIVE_NAME = "Gold Options"
@@ -17,14 +21,21 @@ GoldOptions.DECORATIVE_NAME = DECORATIVE_NAME
 function GoldOptions:__init__()
   self.options = {}
   self._initCopperAmount = 0
+  self._goldFrame = nil
+  ---@type CoreOptions47
+  self._coreOptions47 = CoreOptions47:new(self)
 end
 
 ---do init tasks here, like loading the Saved Variables,
 ---or setting up slash commands.
 function GoldOptions:OnInitialize()
-  self.db = ZxStartingGold.db:RegisterNamespace(MODULE_NAME, self._newDefaults)
+  self._defaults = {profile = {font = "PT Sans", fontsize = 14}}
+
+  self.db = ZxStartingGold.db:RegisterNamespace(MODULE_NAME, self._defaults)
   self._curDbProfile = self.db.profile
+
   self:__init__()
+
   self:registerModuleOptionsTable()
   self:SetEnabledState(ZxStartingGold:getModuleEnabledState(MODULE_NAME))
 end
@@ -41,7 +52,16 @@ function GoldOptions:OnDisable() end
 
 function GoldOptions:registerModuleOptionsTable()
   ZxStartingGold:registerModuleOptions(self.MODULE_NAME, self:getOptionTable(),
-                                       self.DECORATIVE_NAME)
+    self.DECORATIVE_NAME)
+end
+
+function GoldOptions:refreshConfig()
+  if self._goldFrame ~= nil then
+    print(self._curDbProfile.font)
+    print(self._curDbProfile.fontsize)
+    self._goldFrame.goldFontString:SetFont(self._curDbProfile.font,
+      self._curDbProfile.fontsize, "OUTLINE")
+  end
 end
 
 function GoldOptions:getOptionTable()
@@ -49,11 +69,29 @@ function GoldOptions:getOptionTable()
     self.options = {
       type = "group",
       name = self.DECORATIVE_NAME,
+      get = function(info) return self._coreOptions47:getOption(info) end,
+      set = function(info, value) self._coreOptions47:setOption(info, value) end,
       args = {
+        font = {
+          name = "Font",
+          type = "select",
+          dialogControl = "LSM30_Font",
+          values = media:HashTable("font"),
+          order = 10
+        },
+        fontsize = {
+          name = "Font Size",
+          desc = "Font Size",
+          type = "range",
+          min = 10,
+          max = 36,
+          step = 1,
+          order = self._coreOptions47:incrementOrderIndex()
+        },
         getMoneyButton = {
           type = "execute",
           name = "Get Money Difference",
-          order = 10,
+          order = 11,
           func = function(curFrame, ...)
             local curMoney = GetMoney()
             local strList = {
@@ -64,9 +102,11 @@ function GoldOptions:getOptionTable()
             local str2 = ""
             for _, str1 in ipairs(strList) do str2 = str2 .. str1 .. "\n" end
             self.options.args.moneyDescription.name = str2
+
+            self:_openGoldFrame(str2)
           end
         },
-        moneyDescription = {type = "description", name = "", order = 11, fontSize = "large"}
+        moneyDescription = {type = "description", name = "", order = 12, fontSize = "large"}
       }
     }
   end
@@ -95,6 +135,12 @@ function GoldOptions:_handlePlayerEnteringWorld() self._initCopperAmount = GetMo
 ---@param copperAmount number
 ---@return string
 function GoldOptions:_getMoneyString(copperAmount)
+  local sign = ""
+  if copperAmount < 0 then
+    sign = "-"
+    copperAmount = math.abs(copperAmount)
+  end
+
   local gold = copperAmount / 100 / 100
   local silver = (copperAmount / 100) % 100
   local copper = copperAmount % 100
@@ -102,6 +148,27 @@ function GoldOptions:_getMoneyString(copperAmount)
   local silverColor = "|c00" .. "a9a6a9"
   local copperColor = "|c00" .. "a1613a"
   local whiteColor = "|c00" .. "ffffff"
-  return string.format("%s%4d Gold, %s%2d Silver, %s%2d Copper%s", goldColor, gold,
-                       silverColor, silver, copperColor, copper, whiteColor)
+  return string.format("%s%s%4d Gold, %s%2d Silver, %s%2d Copper%s", sign, goldColor, gold,
+           silverColor, silver, copperColor, copper, whiteColor)
+end
+
+---@param strToDisplay string
+function GoldOptions:_openGoldFrame(strToDisplay)
+  if self._goldFrame == nil then
+    self._goldFrame = AceGUI:Create("Frame")
+    self._goldFrame:SetCallback("OnClose", function(widget)
+      AceGUI:Release(widget)
+      self._goldFrame = nil
+    end)
+    self._goldFrame:SetTitle("Gold Difference")
+    self._goldFrame:SetLayout("Flow")
+
+    self._goldFrame.goldFontString = AceGUI:Create("Label")
+    self._goldFrame.goldFontString:SetWidth(200)
+    self._goldFrame.goldFontString:SetFont(self._curDbProfile.font,
+      self._curDbProfile.fontsize, "OUTLINE")
+    self._goldFrame:AddChild(self._goldFrame.goldFontString)
+  end
+
+  self._goldFrame.goldFontString:SetText(strToDisplay)
 end
