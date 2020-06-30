@@ -57,8 +57,10 @@ end
 
 function GoldOptions:refreshConfig()
   if self._goldFrame ~= nil then
-    self._goldFrame.goldText:SetFont(media:Fetch("font", self._curDbProfile.font),
-      self._curDbProfile.fontsize, "OUTLINE")
+    for _, fontString in ipairs(self._goldFrame.goldTextList) do
+      fontString:SetFont(media:Fetch("font", self._curDbProfile.font),
+        self._curDbProfile.fontsize, "OUTLINE")
+    end
   end
 end
 
@@ -102,7 +104,7 @@ function GoldOptions:getOptionTable()
             for _, str1 in ipairs(strList) do str2 = str2 .. str1 .. "\n" end
             self.options.args.moneyDescription.name = str2
 
-            self:_openGoldFrame(str2)
+            self:_openGoldFrame(strList)
           end
         },
         moneyDescription = {type = "description", name = "", order = 12, fontSize = "large"}
@@ -151,8 +153,8 @@ function GoldOptions:_getMoneyString(copperAmount)
            silverColor, silver, copperColor, copper, whiteColor)
 end
 
----@param strToDisplay string
-function GoldOptions:_openGoldFrame(strToDisplay)
+---@param strList table<integer, string>
+function GoldOptions:_openGoldFrame(strList)
   if self._goldFrame == nil then
     self._aceguiFrame = AceGUI:Create("Frame")
     self._aceguiFrame:SetTitle("Gold Difference")
@@ -160,12 +162,23 @@ function GoldOptions:_openGoldFrame(strToDisplay)
 
     self._goldFrame = self._aceguiFrame.frame
 
-    self._goldFrame.goldText = self._goldFrame:CreateFontString(nil, "OVERLAY")
-    self._goldFrame.goldText:SetPoint("TOPLEFT", self._goldFrame, "TOPLEFT", 20, -20)
-    self._goldFrame.goldText:SetFont(media:Fetch("font", self._curDbProfile.font),
-      self._curDbProfile.fontsize, "OUTLINE")
+    self._goldFrame.goldTextList = {}
   end
 
-  self._goldFrame.goldText:SetText(strToDisplay)
+  for index, str1 in ipairs(strList) do
+    local fontString = self._goldFrame:CreateFontString(nil, "OVERLAY")
+    fontString:SetFont(media:Fetch("font", self._curDbProfile.font),
+      self._curDbProfile.fontsize, "OUTLINE")
+    if index == 1 then
+      fontString:SetPoint("TOPLEFT", self._goldFrame, "TOPLEFT", 20, -30)
+    else
+      fontString:SetPoint("TOPLEFT", self._goldFrame.goldTextList[index - 1], "BOTTOMLEFT", 0,
+        -2)
+    end
+    if str1 == "" then str1 = " " end
+    fontString:SetText(str1)
+    table.insert(self._goldFrame.goldTextList, fontString)
+  end
+
   if not self._goldFrame:IsVisible() then self._goldFrame:Show() end
 end
