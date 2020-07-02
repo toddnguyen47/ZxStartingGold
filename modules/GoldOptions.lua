@@ -158,10 +158,10 @@ function GoldOptions:_openGoldFrame(strList)
   if self._goldFrame == nil then
     self._aceguiFrame = AceGUI:Create("Frame")
     self._aceguiFrame:SetTitle("Gold Difference")
-    self._aceguiFrame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
+    -- Do not release, otherwise other frames will have the gold difference text in the background
+    -- self._aceguiFrame:SetCallback("OnClose", function(widget) AceGUI:Release(widget) end)
 
     self._goldFrame = self._aceguiFrame.frame
-
     self._goldFrame.goldTextList = {}
   end
 
