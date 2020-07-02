@@ -2,7 +2,6 @@
 local LibStub, CreateFrame = LibStub, CreateFrame
 
 local ZxStartingGold = LibStub("AceAddon-3.0"):GetAddon("ZxStartingGold")
-
 ---@class FramePool47
 local FramePool47 = {}
 FramePool47.__index = FramePool47
@@ -14,6 +13,7 @@ local _count = 0
 
 ---@param frame table
 function FramePool47:releaseFrame(frame)
+  frame:SetParent(nil)
   frame:Hide()
   table.insert(_framePool, frame)
   _count = _count + 1

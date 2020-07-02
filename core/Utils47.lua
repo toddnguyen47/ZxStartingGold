@@ -1,4 +1,5 @@
 local ZxStartingGold = LibStub("AceAddon-3.0"):GetAddon("ZxStartingGold")
+---@class Utils47
 local Utils47 = {}
 Utils47.__index = Utils47
 ZxStartingGold.Utils47 = Utils47
@@ -28,6 +29,23 @@ table.debugPrint = function(tableInput)
     local value = tableInput[sortedKey]
     print(string.format("Key: %s | Value: %s", tostring(sortedKey), tostring(value)))
   end
+end
+
+---@return table
+---Ref: http://lua-users.org/wiki/CopyTable
+table.deepCopy = function(orig)
+  local orig_type = type(orig)
+  local copy
+  if orig_type == 'table' then
+    copy = {}
+    for orig_key, orig_value in next, orig, nil do
+      copy[table.deepCopy(orig_key)] = table.deepCopy(orig_value)
+    end
+    setmetatable(copy, table.deepCopy(getmetatable(orig)))
+  else -- number, string, boolean, etc
+    copy = orig
+  end
+  return copy
 end
 
 ---@param strInput string
