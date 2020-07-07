@@ -32,8 +32,6 @@ function GoldOptions:OnInitialize()
   self._defaults = {profile = {font = "PT Mono", fontsize = 24}}
 
   self.db = ZxStartingGold.db:RegisterNamespace(MODULE_NAME, self._defaults)
-  self._curDbProfile = self.db.profile
-
   self:__init__()
 
   self:registerModuleOptionsTable()
@@ -58,8 +56,8 @@ end
 function GoldOptions:refreshConfig()
   if self._goldFrame ~= nil then
     for _, fontString in ipairs(self._goldFrame.goldTextList) do
-      fontString:SetFont(media:Fetch("font", self._curDbProfile.font),
-        self._curDbProfile.fontsize, "OUTLINE")
+      fontString:SetFont(media:Fetch("font", self.db.profile.font), self.db.profile.fontsize,
+        "OUTLINE")
     end
   end
 end
@@ -167,8 +165,8 @@ function GoldOptions:_openGoldFrame(strList)
 
   for index, str1 in ipairs(strList) do
     local fontString = self._goldFrame:CreateFontString(nil, "OVERLAY")
-    fontString:SetFont(media:Fetch("font", self._curDbProfile.font),
-      self._curDbProfile.fontsize, "OUTLINE")
+    fontString:SetFont(media:Fetch("font", self.db.profile.font), self.db.profile.fontsize,
+      "OUTLINE")
     if index == 1 then
       fontString:SetPoint("TOPLEFT", self._goldFrame, "TOPLEFT", 20, -30)
     else
